@@ -5,8 +5,8 @@ import warnings
 # Suppress the specific FutureWarning from torch
 warnings.filterwarnings("ignore", category=FutureWarning, module="torch")
 
-# Load the Whisper model
-model = whisper.load_model("base", weights_only=True)
+# Load the Whisper model without the weights_only argument
+model = whisper.load_model("base")
 
 st.title("Transcription Tool")
 
