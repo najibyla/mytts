@@ -1,6 +1,7 @@
 import whisper
 import streamlit as st
 import warnings
+import json
 
 # Suppress the specific FutureWarning from torch
 warnings.filterwarnings("ignore", category=FutureWarning, module="torch")
@@ -37,14 +38,13 @@ if uploaded_file is not None:
             if fmt == "txt":
                 out_file.write(result["text"])
             elif fmt == "srt":
-                whisper.utils.write_srt(result["segments"], out_file)
+                write_srt(result["segments"], out_file)
             elif fmt == "vtt":
-                whisper.utils.write_vtt(result["segments"], out_file)
+                write_vtt(result["segments"], out_file)
             elif fmt == "json":
-                import json
                 json.dump(result, out_file, ensure_ascii=False, indent=4)
             elif fmt == "tsv":
-                whisper.utils.write_tsv(result["segments"], out_file)
+                write_tsv(result["segments"], out_file)
 
     # Provide download links for each file format
     st.write("Download Transcription Files:")
@@ -57,3 +57,31 @@ if uploaded_file is not None:
                 file_name=output_path,
                 mime="text/plain" if fmt in ["txt", "srt", "vtt", "tsv"] else "application/json"
             )
+
+def write_srt(segments, file):
+    """Write the transcription segments to an SRT file."""
+    def format_srt_time(seconds):
+        h, rem = divmod(seconds, 3600)
+        m, s = divmod(rem, 60)
+        return f"{int(h):02}:{int(m):02}:{int(s):02},{int((s % 1) * 1000):03}"
+
+    for idx, segment in enumerate(segments):
+        start = format_srt_time(segment["start"])
+        end = format_srt_time(segment["end"])
+        file.write(f"{idx + 1}\n{start} --> {end}\n{segment['text']}\n\n")
+
+def write_vtt(segments, file):
+    """Write the transcription segments to a VTT file."""
+    file.write("WEBVTT\n\n")
+    for segment in segments:
+        start = format_srt_time(segment["start"])
+        end = format_srt_time(segment["end"])
+        file.write(f"{start} --> {end}\n{segment['text']}\n\n")
+
+def write_tsv(segments, file):
+    """Write the transcription segments to a TSV file."""
+    file.write("start\tend\ttext\n")
+    for segment in segments:
+        start = format_srt_time(segment["start"])
+        end = format_srt_time(segment["end"])
+        file.write(f"{start}\t{end}\t{segment['text']}\n")

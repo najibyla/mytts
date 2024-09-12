@@ -10,3 +10,7 @@ use the local script to transcribe your audio
 python3 transcribe.py audio.wav
 ```
 
+if you want to use the bash command
+```
+whisper output.wav --model base --language en
+```
