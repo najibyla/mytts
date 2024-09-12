@@ -14,6 +14,35 @@ st.title("Transcription Tool")
 # Upload file using Streamlit
 uploaded_file = st.file_uploader("Choose an audio file", type=["wav", "mp3", "m4a"])
 
+def format_srt_time(seconds):
+    """Format time in seconds to SRT/VTT time format."""
+    h, rem = divmod(seconds, 3600)
+    m, s = divmod(rem, 60)
+    return f"{int(h):02}:{int(m):02}:{int(s):02},{int((s % 1) * 1000):03}"
+
+def write_srt(segments, file):
+    """Write the transcription segments to an SRT file."""
+    for idx, segment in enumerate(segments):
+        start = format_srt_time(segment["start"])
+        end = format_srt_time(segment["end"])
+        file.write(f"{idx + 1}\n{start} --> {end}\n{segment['text']}\n\n")
+
+def write_vtt(segments, file):
+    """Write the transcription segments to a VTT file."""
+    file.write("WEBVTT\n\n")
+    for segment in segments:
+        start = format_srt_time(segment["start"])
+        end = format_srt_time(segment["end"])
+        file.write(f"{start} --> {end}\n{segment['text']}\n\n")
+
+def write_tsv(segments, file):
+    """Write the transcription segments to a TSV file."""
+    file.write("start\tend\ttext\n")
+    for segment in segments:
+        start = format_srt_time(segment["start"])
+        end = format_srt_time(segment["end"])
+        file.write(f"{start}\t{end}\t{segment['text']}\n")
+
 if uploaded_file is not None:
     # Save the uploaded file locally
     file_path = uploaded_file.name
@@ -58,30 +87,9 @@ if uploaded_file is not None:
                 mime="text/plain" if fmt in ["txt", "srt", "vtt", "tsv"] else "application/json"
             )
 
-def write_srt(segments, file):
-    """Write the transcription segments to an SRT file."""
-    def format_srt_time(seconds):
-        h, rem = divmod(seconds, 3600)
-        m, s = divmod(rem, 60)
-        return f"{int(h):02}:{int(m):02}:{int(s):02},{int((s % 1) * 1000):03}"
-
-    for idx, segment in enumerate(segments):
+    # Log each phrase with start and end times
+    st.write("Transcription Log:")
+    for segment in result["segments"]:
         start = format_srt_time(segment["start"])
         end = format_srt_time(segment["end"])
-        file.write(f"{idx + 1}\n{start} --> {end}\n{segment['text']}\n\n")
-
-def write_vtt(segments, file):
-    """Write the transcription segments to a VTT file."""
-    file.write("WEBVTT\n\n")
-    for segment in segments:
-        start = format_srt_time(segment["start"])
-        end = format_srt_time(segment["end"])
-        file.write(f"{start} --> {end}\n{segment['text']}\n\n")
-
-def write_tsv(segments, file):
-    """Write the transcription segments to a TSV file."""
-    file.write("start\tend\ttext\n")
-    for segment in segments:
-        start = format_srt_time(segment["start"])
-        end = format_srt_time(segment["end"])
-        file.write(f"{start}\t{end}\t{segment['text']}\n")
+        st.write(f"Start: {start}, End: {end}, Text: {segment['text']}")
