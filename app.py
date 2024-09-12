@@ -3,7 +3,7 @@ import whisper
 import os
 
 # Load Whisper model
-model = whisper.load_model("base")
+model = whisper.load_model("base", weights_only=True)
 
 # Streamlit app title
 st.title("Audio Transcription Tool")
