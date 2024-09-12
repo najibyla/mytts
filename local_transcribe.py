@@ -10,7 +10,7 @@ if len(sys.argv) < 2:
 audio_file = sys.argv[1]
 
 # Load the Whisper model
-model = whisper.load_model("base")
+model = whisper.load_model("base", weights_only=True)
 
 # Transcribe the audio file
 result = model.transcribe(audio_file, language="en")
