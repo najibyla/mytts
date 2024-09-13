@@ -20,3 +20,12 @@ you'll get all those formats:
 ```
 ["txt", "srt", "vtt", "json", "tsv"]
 ```
+
+## run the app
+
+```bash
+# activate the virtual environement
+ source myenv/bin/activate
+# the launch the streamlit app
+streamlit run app.py
+```
