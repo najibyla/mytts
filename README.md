@@ -14,3 +14,9 @@ if you want to use the bash command
 ```
 whisper output.wav --model base --language en
 ```
+
+you can also use the app.py with streamlit (locally) to get the transcription done
+you'll get all those formats: 
+```
+["txt", "srt", "vtt", "json", "tsv"]
+```
